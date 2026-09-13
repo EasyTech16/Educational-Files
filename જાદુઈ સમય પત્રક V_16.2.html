@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>શાળા સમયપત્રક — વર્ગ અને વર્ગશિક્ષક સહિત</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body { font-family: 'Mukta', sans-serif; background-color: #f0fdf4; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .print-container { width: 100%; max-width: 100%; box-shadow: none; padding: 0; margin: 0; border: none !important; }
+            .table-cell-print { border: 1px solid #64748b !important; padding: 5px !important; font-size: 12px !important; }
+            .page-break { page-break-before: always; }
+            .print-brand-footer { display: flex !important; }
+            .division-break { page-break-before: always; }
+            .print-teacher-table td, .print-teacher-table th { border: 1px solid #64748b !important; padding: 3px 5px !important; font-size: 11px !important; }
+        }
+        .print-only { display: none; }
+        .print-brand-footer { display: none; }
+        .tab-active { border-bottom: 4px solid #16a34a; color: #166534; font-weight: bold; background-color: #dcfce7; }
+        .tab-inactive { color: #64748b; }
+        .teacher-card { transition: all 0.2s ease; }
+        .teacher-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .period-config-input { width: 70px; padding: 2px 4px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; text-align: center; }
+        .period-config-input:focus { border-color: #16a34a; outline: none; }
+        .recess-row { background-color: #fef3c7; }
+        .division-card { transition: all 0.2s; }
+        .division-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .ct-badge { font-size: 10px; background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+        .division-tab { font-size: 13px; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .division-tab.active { background: #16a34a; color: white; font-weight: bold; }
+        .division-tab.inactive { background: #e2e8f0; color: #475569; }
+        .division-tab.inactive:hover { background: #cbd5e1; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; }
+        .teacher-timetable td, .teacher-timetable th { border: 1px solid #cbd5e1; padding: 3px 5px; font-size: 11px; text-align: center; }
+        .master-grid td, .master-grid th { border: 1px solid #cbd5e1; padding: 3px 4px; font-size: 11px; text-align: center; }
+        .master-grid .time-col { background: #f1f5f9; font-weight: 600; font-size: 10px; min-width: 70px; }
+        .master-grid .day-col { background: #e0f2fe; font-weight: 700; font-size: 11px; min-width: 60px; }
+        .master-grid .std-header { background: #dcfce7; font-weight: 800; font-size: 11px; }
+        .validation-card { transition: all 0.2s; }
+        .validation-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+        /* NEW: Branding badge animation */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 15px rgba(16,185,129,0.8); }
+        }
+        .brand-glow { animation: glow 2s ease-in-out infinite; }
+
+        /* NEW: Branding ribbon */
+        .brand-ribbon {
+            background: linear-gradient(90deg, #059669, #10b981, #34d399, #10b981, #059669);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 p-2 md:p-6">
+
+<div class="max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden print-container border border-green-100">
+
+    <!-- ===== BRANDING: Top Ribbon ===== -->
+    <div class="brand-ribbon text-white text-center py-1.5 text-xs font-bold tracking-wider no-print">
+        <i class="fa-solid fa-crown text-yellow-300 mr-1"></i>
+        ડેવલપર: SAKILAHEMAD SHAIKH
+        <span class="mx-2 opacity-70">|</span>
+        <i class="fa-solid fa-phone-volume text-yellow-200 mr-1"></i> 9722222606
+        <span class="mx-2 opacity-70">|</span>
+        <a href="https://whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47" target="_blank" rel="noopener noreferrer" class="underline hover:text-yellow-200">
+            <i class="fa-brands fa-whatsapp mr-1"></i> વોટ્સએપ ચેનલમાં જોડાઓ
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-800 to-emerald-700 text-white p-6 md:p-8 text-center border-b-8 border-yellow-400 no-print relative">
+        <!-- NEW: Branding badge in corner -->
+        <div class="absolute top-3 right-3 flex items-center gap-1.5 bg-white/15 backdrop-blur-sm border border-white/30 px-3 py-1.5 rounded-full text-[10px] font-bold">
+            <i class="fa-solid fa-code text-yellow-300"></i>
+            <span>v2.0 Branded</span>
+        </div>
+
+        <h1 class="text-3xl md:text-5xl font-extrabold mb-3 drop-shadow-md">
+            <i class="fa-solid fa-school-flag mr-3"></i>સ્માર્ટ શાળા સમયપત્રક
+        </h1>
+        <p class="text-green-100 text-lg font-semibold">જીસીઈઆરટી પરિપત્ર મુજબ વર્ગ અને વર્ગશિક્ષક સહિત ઓટોમેટિક તાસ ફાળવણી</p>
+
+        <!-- NEW: Sub-branding line -->
+        <div class="mt-4 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 rounded-full text-xs">
+            <i class="fa-solid fa-shield-halved text-emerald-300"></i>
+            <span class="font-semibold">Designed & Developed by</span>
+            <strong class="text-yellow-300">Shaikh Sakilahemad</strong>
+            <span class="opacity-60">•</span>
+            <a href="https://whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47" target="_blank" rel="noopener noreferrer" class="text-emerald-200 hover:text-white underline">
+                <i class="fa-brands fa-whatsapp"></i> ચેનલ
+            </a>
+        </div>
+    </div>
+
+    <div class="p-4 md:p-8">
+
+        <!-- School Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 bg-green-50 p-5 rounded-2xl border border-green-200 no-print">
+            <div>
+                <label class="block text-xs font-bold text-green-900 uppercase mb-1">શાળાનું નામ</label>
+                <input type="text" id="schoolName" value="શ્રી પ્રાથમિક શાળા" class="w-full bg-white border border-green-300 rounded-lg px-3 py-2 font-bold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-green-900 uppercase mb-1">તાલુકો / જિલ્લો</label>
+                <input type="text" id="talukaDistrict" value="તાલુકો: ______ , જિલ્લો: ______" class="w-full bg-white border border-green-300 rounded-lg px-3 py-2 font-bold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-green-900 uppercase mb-1">પે સેન્ટર</label>
+                <input type="text" id="peCenter" value="પે સેન્ટર શાળાનું નામ" class="w-full bg-white border border-green-300 rounded-lg px-3 py-2 font-bold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-green-900 uppercase mb-1">સી.આર.સી. ભવન</label>
+                <input type="text" id="crcName" value="સી.આર.સી. નામ" class="w-full bg-white border border-green-300 rounded-lg px-3 py-2 font-bold text-gray-800 focus:ring-2 focus:ring-green-500 outline-none shadow-sm">
+            </div>
+        </div>
+
+        <!-- ===== PERIOD CONFIG ===== -->
+        <div class="no-print bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-6 shadow-sm">
+            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                <i class="fa-solid fa-clock text-blue-600 mr-2"></i> તાસ સમય અને વિરામ ગોઠવણી
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse" id="periodConfigTable">
+                    <thead>
+                        <tr class="bg-blue-100 text-blue-900">
+                            <th class="p-2 border text-left">તાસ</th>
+                            <th class="p-2 border text-center">શરૂઆત</th>
+                            <th class="p-2 border text-center">અંત</th>
+                            <th class="p-2 border text-center">વિરામ?</th>
+                            <th class="p-2 border text-center">ક્રિયા</th>
+                        </tr>
+                    </thead>
+                    <tbody id="periodConfigBody"></tbody>
+                </table>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+                <button onclick="addPeriodRow()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-4 rounded-lg text-sm shadow transition">
+                    <i class="fa-solid fa-plus mr-1"></i> તાસ ઉમેરો
+                </button>
+                <button onclick="addRecessRow()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-4 rounded-lg text-sm shadow transition">
+                    <i class="fa-solid fa-mug-saucer mr-1"></i> વિરામ ઉમેરો
+                </button>
+                <button onclick="resetDefaultPeriods()" class="bg-slate-500 hover:bg-slate-600 text-white font-bold py-1.5 px-4 rounded-lg text-sm shadow transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> ડિફૉલ્ટ
+                </button>
+            </div>
+            <p class="text-xs text-blue-600 mt-2 font-semibold"><i class="fa-solid fa-info-circle mr-1"></i> શનિવારે છેલ્લા ૨ તાસ આપમેળે રદ થાય છે. વિરામને તાસ ક્રમાંક મળતો નથી.</p>
+        </div>
+
+        <!-- ===== TEACHER MANAGEMENT ===== -->
+        <div class="no-print bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                <i class="fa-solid fa-users text-blue-600 mr-2"></i> શિક્ષકોની સૂચિ અને વિષય ફાળવણી
+                <span class="ml-3 text-sm font-normal text-slate-500">(વધારાના શિક્ષકો ઉમેરી શકાય)</span>
+            </h3>
+            <div id="teacherList" class="space-y-3"></div>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <button onclick="addTeacher()" class="border-2 border-dashed border-green-400 text-green-700 font-bold py-2 px-6 rounded-xl hover:bg-green-50 transition flex items-center">
+                    <i class="fa-solid fa-user-plus mr-2"></i> નવો શિક્ષક ઉમેરો
+                </button>
+                <button onclick="autoDistributeSubjects()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-xl shadow transition flex items-center">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> ડિફૉલ્ટ ૫ શિક્ષક ફાળવણી
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== DIVISION MANAGEMENT ===== -->
+        <div class="no-print bg-purple-50 border border-purple-200 rounded-2xl p-5 mb-6 shadow-sm">
+            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                <i class="fa-solid fa-layer-group text-purple-600 mr-2"></i> વર્ગ વ્યવસ્થાપન અને વર્ગશિક્ષક
+                <span class="ml-3 text-sm font-normal text-slate-500">(એક ધોરણમાં એકથી વધુ વર્ગ)</span>
+            </h3>
+            <p class="text-sm text-slate-600 mb-4 font-semibold">
+                <i class="fa-solid fa-circle-info text-purple-500 mr-1"></i>
+                દરેક વર્ગ માટે વર્ગશિક્ષક પસંદ કરો. વર્ગશિક્ષકના પ્રથમ ૨ તાસ (રોજ) તેમના વર્ગમાં જ ગોઠવાશે — હાજરી અને વહીવટી કાર્ય સરળ બનશે.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="divisionManagementGrid"></div>
+        </div>
+
+        <!-- ===== GENERATE BUTTON ===== -->
+        <div class="no-print text-center mb-6">
+            <button onclick="generateAutoTimetable()" id="autoBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-lg py-3 px-12 rounded-xl shadow-lg transition transform hover:scale-105">
+                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> જાદુઈ ટાઈમટેબલ બનાવો
+            </button>
+            <p class="text-xs text-blue-600 mt-2 font-bold animate-pulse">ક્લિક કરો — વર્ગશિક્ષક પ્રથમ ૨ તાસ સાથે સંપૂર્ણ ઓટોમેટિક ગોઠવણ!</p>
+        </div>
+
+        <!-- ===== TABS ===== -->
+        <div class="flex flex-wrap border-b-2 border-green-600 no-print mb-6 gap-1" id="tabs">
+            <button onclick="switchTab('std6')" id="tab_std6" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-active rounded-t-xl transition">ધોરણ ૬</button>
+            <button onclick="switchTab('std7')" id="tab_std7" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-inactive hover:bg-green-50 rounded-t-xl transition">ધોરણ ૭</button>
+            <button onclick="switchTab('std8')" id="tab_std8" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-inactive hover:bg-green-50 rounded-t-xl transition">ધોરણ ૮</button>
+            <button onclick="switchTab('teacherwise')" id="tab_teacherwise" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-inactive hover:bg-green-50 rounded-t-xl transition text-purple-700 font-bold">
+                <i class="fa-solid fa-chalkboard-user mr-1"></i> શિક્ષકવાર
+            </button>
+            <button onclick="switchTab('master')" id="tab_master" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-inactive hover:bg-green-50 rounded-t-xl transition text-orange-700 font-bold ml-auto border border-b-0 border-orange-200 bg-orange-50">
+                <i class="fa-solid fa-table-columns mr-1"></i> મુખ્ય સમયપત્રક
+            </button>
+            <button onclick="switchTab('validation')" id="tab_validation" class="py-2.5 px-4 md:px-6 text-sm md:text-base focus:outline-none tab-inactive hover:bg-green-50 rounded-t-xl transition text-emerald-700 font-bold border border-b-0 border-emerald-200 bg-emerald-50">
+                <i class="fa-solid fa-shield-halved mr-1"></i> તાસ ચકાસણી
+            </button>
+        </div>
+
+        <h2 class="print-only text-2xl font-bold text-center mb-4 mt-6 uppercase border-b-2 border-black pb-2" id="print_title">શાળા સમયપત્રક</h2>
+
+        <!-- ===== TIMETABLE CONTAINER ===== -->
+        <div id="timetable_container" class="overflow-x-auto bg-white border border-slate-300 rounded-xl shadow-md pb-4"></div>
+
+        <!-- ===== NEW: PRINT-ONLY BRANDING FOOTER ===== -->
+        <div class="print-brand-footer mt-6 pt-3 border-t-2 border-slate-400 justify-between items-center text-[10px] text-slate-700">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-code text-indigo-700"></i>
+                <span>ડેવલપર: <strong>Shaikh Sakilahemad</strong></span>
+                <span class="mx-1">|</span>
+                <i class="fa-solid fa-phone text-emerald-700"></i>
+                <span>સંપર્ક: <strong>9722222606</strong></span>
+            </div>
+            <div class="flex items-center gap-1.5 text-emerald-800 font-bold">
+                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                <span>વોટ્સએપ ચેનલ: whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47</span>
+            </div>
+        </div>
+
+        <!-- ===== EXPORT ===== -->
+        <div class="mt-8 text-center no-print border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-center gap-4">
+            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 text-lg flex items-center justify-center">
+                <i class="fa-solid fa-file-pdf mr-3 text-red-400"></i> PDF ડાઉનલોડ / પ્રિન્ટ
+            </button>
+            <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 text-lg flex items-center justify-center">
+                <i class="fa-solid fa-file-excel mr-3 text-white"></i> Excel (CSV) ડાઉનલોડ
+            </button>
+        </div>
+
+        <!-- ===== NEW: ENHANCED FOOTER WITH WHATSAPP CHANNEL ===== -->
+        <div class="mt-10 bg-gradient-to-r from-slate-100 via-emerald-50 to-slate-100 border border-slate-200 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 no-print shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 text-white p-3 rounded-2xl shadow-md">
+                    <i class="fa-solid fa-user-gear text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-0.5">Designed & Developed by</p>
+                    <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">SAKILAHEMAD SHAIKH</h3>
+                    <p class="text-slate-600 font-bold mt-1">
+                        <i class="fa-brands fa-whatsapp text-green-500 mr-1"></i>
+                        સંપર્ક: <a href="tel:9722222606" class="text-blue-700 hover:underline">9722222606</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center md:items-end gap-2">
+                <a href="https://whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47" target="_blank" rel="noopener noreferrer"
+                   class="brand-glow bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition flex items-center gap-2 text-base">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    <span>અધિકૃત વોટ્સએપ ચેનલમાં જોડાઓ</span>
+                </a>
+                <span class="text-[11px] font-bold text-slate-500 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">
+                    <i class="fa-solid fa-gift text-pink-500 mr-1"></i> ફ્રી શૈક્ષણિક ઉપયોગ • સૂચનાઓ માટે ચેનલ જોડાઓ
+                </span>
+            </div>
+        </div>
+
+        <!-- ===== NEW: BOTTOM COPYRIGHT STRIP ===== -->
+        <div class="mt-4 text-center text-[11px] text-slate-500 font-semibold no-print border-t border-slate-200 pt-4">
+            <i class="fa-regular fa-copyright mr-1"></i>
+            2025 <strong class="text-slate-700">Shaikh Sakilahemad</strong> — સર્વ હક્ક સ્વાધીન
+            <span class="mx-2">|</span>
+            <i class="fa-solid fa-heart text-red-500 mx-1"></i>
+            શિક્ષણ માટે બનાવેલ
+            <span class="mx-2">|</span>
+            <a href="https://whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold hover:underline">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp Channel
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  CONSTANTS
+// ============================================================
+const ALL_SUBJECTS = [
+    'ગણિત','વિજ્ઞાન','ગુજરાતી','હિન્દી','અંગ્રેજી','સંસ્કૃત',
+    'સામાજિક વિજ્ઞાન','પી.ટી./રમતગમત','કલા/ચિત્ર','કાર્યાનુભવ','કમ્પ્યુટર','પુસ્તકાલય'
+];
+
+const REQUIRED_PERIODS = {
+    'ગણિત':7,'વિજ્ઞાન':7,'ગુજરાતી':7,'અંગ્રેજી':6,
+    'સામાજિક વિજ્ઞાન':6,'હિન્દી':5,'સંસ્કૃત':2,
+    'પી.ટી./રમતગમત':1,'કલા/ચિત્ર':1,'કાર્યાનુભવ':1,'કમ્પ્યુટર':1,'પુસ્તકાલય':1
+};
+
+const DAYS = ['સોમવાર','મંગળવાર','બુધવાર','ગુરુવાર','શુક્રવાર','શનિવાર'];
+const STD_KEYS = ['std6','std7','std8'];
+const STD_LABELS = { std6:'ધોરણ ૬', std7:'ધોરણ ૭', std8:'ધોરણ ૮' };
+
+const DEFAULT_TEACHERS = [
+    { id:1, name:'શિક્ષક A (ગણિત/વિજ્ઞાન)', subjects:['ગણિત','વિજ્ઞાન'] },
+    { id:2, name:'શિક્ષક B (ગુજરાતી/સંસ્કૃત)', subjects:['ગુજરાતી','સંસ્કૃત'] },
+    { id:3, name:'શિક્ષક C (અંગ્રેજી/હિન્દી)', subjects:['અંગ્રેજી','હિન્દી'] },
+    { id:4, name:'શિક્ષક D (સા.વિજ્ઞાન/કમ્પ્યુટર)', subjects:['સામાજિક વિજ્ઞાન','કમ્પ્યુટર'] },
+    { id:5, name:'શિક્ષક E (પી.ટી./કલા/પુસ્તકાલય)', subjects:['પી.ટી./રમતગમત','કલા/ચિત્ર','પુસ્તકાલય'] }
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let teachers = JSON.parse(JSON.stringify(DEFAULT_TEACHERS));
+let teacherIdCounter = 6;
+
+let divisions = [
+    { id:'d1', std:'std6', name:'અ', classTeacher:'' },
+    { id:'d2', std:'std7', name:'અ', classTeacher:'' },
+    { id:'d3', std:'std8', name:'અ', classTeacher:'' }
+];
+let divisionIdCounter = 4;
+
+let periodConfig = [
+    { id:1, start:'09:00', end:'09:45', isRecess:false },
+    { id:2, start:'09:45', end:'10:30', isRecess:false },
+    { id:3, start:'10:30', end:'11:15', isRecess:false },
+    { id:4, start:'11:15', end:'12:00', isRecess:false },
+    { id:5, start:'12:00', end:'12:30', isRecess:true },
+    { id:6, start:'12:30', end:'13:15', isRecess:false },
+    { id:7, start:'13:15', end:'14:00', isRecess:false },
+    { id:8, start:'14:00', end:'14:45', isRecess:false }
+];
+let periodIdCounter = 9;
+
+let timetableData = {};
+let currentActiveTab = 'std6';
+let currentDivisionSubTab = {};
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function getTeacherNames() { return teachers.map(t => t.name); }
+function shuffleArray(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function computePeriodNumbers() {
+    const numbers = {};
+    let n = 0;
+    periodConfig.forEach(p => {
+        if (!p.isRecess) {
+            n++;
+            numbers[p.id] = n;
+        }
+    });
+    return numbers;
+}
+
+function getLastTwoTeachingPeriodIds() {
+    const teachingIds = periodConfig.filter(p=>!p.isRecess).map(p=>p.id);
+    return teachingIds.slice(-2);
+}
+
+function getFirstTwoTeachingPeriodIds() {
+    const teachingIds = periodConfig.filter(p=>!p.isRecess).map(p=>p.id);
+    return teachingIds.slice(0,2);
+}
+
+function getActiveSlots(){
+    const lastTwo = getLastTwoTeachingPeriodIds();
+    const slots=[];
+    DAYS.forEach(day=>{
+        periodConfig.forEach(p=>{
+            if(p.isRecess) return;
+            if(day==='શનિવાર' && lastTwo.includes(p.id)) return;
+            slots.push({day, periodId:p.id, key:`${day}_${p.id}`});
+        });
+    });
+    return slots;
+}
+
+function getDivisionsOfStd(std){
+    return divisions.filter(d=>d.std===std);
+}
+
+// ============================================================
+//  TEACHER MANAGEMENT
+// ============================================================
+function renderTeacherList(){
+    const c = document.getElementById('teacherList');
+    if(!teachers.length){ c.innerHTML = '<p class="text-slate-500 text-sm">કોઈ શિક્ષક નથી.</p>'; return; }
+    let html='';
+    teachers.forEach((t,idx)=>{
+        const subOptions = ALL_SUBJECTS.map(s=>`<option value="${s}" ${t.subjects.includes(s)?'selected':''}>${s}</option>`).join('');
+        let total=0; t.subjects.forEach(s=>{ total += (REQUIRED_PERIODS[s]||0); });
+        html += `
+            <div class="teacher-card bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap items-center gap-3 shadow-sm">
+                <div class="flex-1 min-w-[180px]">
+                    <input type="text" value="${escapeHtml(t.name)}" onchange="updateTeacherName(${idx}, this.value)"
+                        class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="શિક્ષકનું નામ">
+                </div>
+                <div class="flex-1 min-w-[220px]">
+                    <select multiple onchange="updateTeacherSubjects(${idx}, this)"
+                        class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none h-14">
+                        ${subOptions}
+                    </select>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Ctrl+ક્લિક કરીને બહુવિધ વિષયો પસંદ કરો</p>
+                </div>
+                <div class="text-center min-w-[70px]">
+                    <span class="text-sm font-extrabold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">${total}</span>
+                    <p class="text-[10px] text-slate-500">તાસ/વર્ગ</p>
+                </div>
+                <button onclick="removeTeacher(${idx})" class="text-red-500 hover:text-red-700 text-lg font-bold px-2" title="દૂર કરો">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>`;
+    });
+    c.innerHTML = html;
+}
+
+function updateTeacherName(idx,val){
+    if(idx<0||idx>=teachers.length) return;
+    const oldName = teachers[idx].name;
+    teachers[idx].name = val.trim() || `શિક્ષક ${idx+1}`;
+    divisions.forEach(d=>{ if(d.classTeacher===oldName) d.classTeacher=teachers[idx].name; });
+    Object.keys(timetableData).forEach(dId=>{
+        Object.keys(timetableData[dId]).forEach(k=>{
+            if(timetableData[dId][k].tr===oldName) timetableData[dId][k].tr=teachers[idx].name;
+        });
+    });
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function updateTeacherSubjects(idx, sel){
+    if(idx<0||idx>=teachers.length) return;
+    teachers[idx].subjects = Array.from(sel.selectedOptions).map(o=>o.value);
+    renderTeacherList();
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function removeTeacher(idx){
+    if(teachers.length<=1){ alert('ઓછામાં ઓછો એક શિક્ષક રાખવો જરૂરી છે.'); return; }
+    const name = teachers[idx].name;
+    if(!confirm(`"${name}" ને દૂર કરવા?`)) return;
+    teachers.splice(idx,1);
+    divisions.forEach(d=>{ if(d.classTeacher===name) d.classTeacher=''; });
+    renderTeacherList();
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function addTeacher(){
+    const name = `શિક્ષક ${teacherIdCounter}`;
+    teachers.push({ id:teacherIdCounter++, name:name, subjects:[] });
+    renderTeacherList();
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function autoDistributeSubjects(){
+    if(!confirm('ડિફૉલ્ટ ૫ શિક્ષકો સાથે વિષય ફાળવણી પુનઃસ્થાપિત કરવી? હાલના શિક્ષકો બદલાઈ જશે.')) return;
+    teachers = JSON.parse(JSON.stringify(DEFAULT_TEACHERS));
+    teacherIdCounter = 6;
+    divisions.forEach(d=>{ d.classTeacher=''; });
+    renderTeacherList();
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+// ============================================================
+//  DIVISION MANAGEMENT
+// ============================================================
+function renderDivisionManagement(){
+    const container = document.getElementById('divisionManagementGrid');
+    if(!container) return;
+    let html='';
+    STD_KEYS.forEach(std=>{
+        const stdDivs = getDivisionsOfStd(std);
+        html += `
+            <div class="bg-white border border-purple-200 rounded-xl p-4 shadow-sm">
+                <h4 class="font-extrabold text-lg text-purple-800 mb-3 flex items-center">
+                    <i class="fa-solid fa-graduation-cap mr-2"></i>${STD_LABELS[std]}
+                    <span class="ml-2 text-xs font-normal text-slate-500">(${stdDivs.length} વર્ગ)</span>
+                </h4>
+                <div class="space-y-2">
+                    ${stdDivs.map(d=>renderDivisionRow(d)).join('')}
+                </div>
+                <button onclick="addDivision('${std}')" class="mt-3 w-full border-2 border-dashed border-purple-300 text-purple-700 font-bold py-2 rounded-lg hover:bg-purple-50 transition text-sm">
+                    <i class="fa-solid fa-plus mr-1"></i> વર્ગ ઉમેરો
+                </button>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function renderDivisionRow(div){
+    const teacherOptions = '<option value="">-- વર્ગશિક્ષક પસંદ કરો --</option>' +
+        teachers.map(t=>`<option value="${escapeHtml(t.name)}" ${div.classTeacher===t.name?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
+    const dupCount = divisions.filter(d=>d.classTeacher===div.classTeacher && div.classTeacher).length;
+    const dupWarning = dupCount > 1 ? '<i class="fa-solid fa-triangle-exclamation text-amber-500 ml-1" title="આ શિક્ષક બીજા વર્ગનો પણ વર્ગશિક્ષક છે — પ્રથમ ૨ તાસમાં અથડામણ થઈ શકે"></i>' : '';
+    return `
+        <div class="division-card flex flex-wrap items-center gap-2 bg-purple-50 p-2 rounded-lg border border-purple-100">
+            <div class="flex items-center gap-1">
+                <span class="text-xs font-bold text-purple-700">વર્ગ:</span>
+                <input type="text" value="${escapeHtml(div.name)}" onchange="updateDivisionName('${div.id}', this.value)"
+                    class="w-12 border border-purple-200 rounded px-2 py-1 text-center font-bold text-sm focus:ring-1 focus:ring-purple-400 outline-none">
+            </div>
+            <div class="flex-1 min-w-[160px] flex items-center gap-1">
+                <span class="text-xs font-bold text-purple-700">વર્ગશિક્ષક:</span>
+                <select onchange="updateClassTeacher('${div.id}', this.value)"
+                    class="flex-1 border border-purple-200 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-purple-400 outline-none bg-white">
+                    ${teacherOptions}
+                </select>
+                ${dupWarning}
+            </div>
+            <button onclick="removeDivision('${div.id}')" class="text-red-500 hover:text-red-700 px-1" title="વર્ગ દૂર કરો">
+                <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+        </div>`;
+}
+
+function updateDivisionName(id,val){
+    const d = divisions.find(x=>x.id===id); if(!d) return;
+    d.name = val.trim() || 'અ';
+    renderCurrentView();
+}
+
+function updateClassTeacher(id,val){
+    const d = divisions.find(x=>x.id===id); if(!d) return;
+    d.classTeacher = val;
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function addDivision(std){
+    const existing = getDivisionsOfStd(std);
+    const name = existing.length===0?'અ':(existing.length===1?'બ':(existing.length===2?'ક':'ડ'));
+    const newId = 'd'+(divisionIdCounter++);
+    divisions.push({ id:newId, std:std, name:name, classTeacher:'' });
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+function removeDivision(id){
+    const div = divisions.find(d=>d.id===id); if(!div) return;
+    const count = getDivisionsOfStd(div.std).length;
+    if(count<=1){ alert('દરેક ધોરણમાં ઓછામાં ઓછો એક વર્ગ રાખવો જરૂરી છે.'); return; }
+    if(!confirm(`"${STD_LABELS[div.std]} - ${div.name}" વર્ગ દૂર કરવો?`)) return;
+    divisions = divisions.filter(d=>d.id!==id);
+    delete timetableData[id];
+    renderDivisionManagement();
+    renderCurrentView();
+}
+
+// ============================================================
+//  PERIOD CONFIG
+// ============================================================
+function renderPeriodConfig(){
+    const tbody = document.getElementById('periodConfigBody');
+    const periodNumbers = computePeriodNumbers();
+    let html='';
+    periodConfig.forEach((p,idx)=>{
+        const label = p.isRecess ? '🔄 વિરામ' : ('તાસ ' + periodNumbers[p.id]);
+        html += `
+            <tr class="${p.isRecess?'recess-row':''}">
+                <td class="p-1.5 border font-bold text-center">${label}</td>
+                <td class="p-1.5 border text-center"><input type="time" value="${p.start}" onchange="updatePeriodTime(${idx},'start',this.value)" class="period-config-input"></td>
+                <td class="p-1.5 border text-center"><input type="time" value="${p.end}" onchange="updatePeriodTime(${idx},'end',this.value)" class="period-config-input"></td>
+                <td class="p-1.5 border text-center"><input type="checkbox" ${p.isRecess?'checked':''} onchange="toggleRecess(${idx},this.checked)" class="w-4 h-4 accent-amber-500"></td>
+                <td class="p-1.5 border text-center"><button onclick="removePeriodRow(${idx})" class="text-red-500 hover:text-red-700 text-sm font-bold px-2"><i class="fa-solid fa-xmark"></i></button></td>
+            </tr>`;
+    });
+    tbody.innerHTML = html;
+}
+
+function updatePeriodTime(idx,field,val){
+    if(idx<0||idx>=periodConfig.length) return;
+    periodConfig[idx][field]=val;
+    renderCurrentView();
+}
+
+function toggleRecess(idx,checked){
+    if(idx<0||idx>=periodConfig.length) return;
+    const p = periodConfig[idx];
+    p.isRecess = checked;
+    divisions.forEach(div=>{
+        DAYS.forEach(day=>{
+            const key = `${day}_${p.id}`;
+            if(checked){ delete timetableData[div.id]?.[key]; }
+            else { if(!timetableData[div.id]) timetableData[div.id]={}; if(!timetableData[div.id][key]) timetableData[div.id][key]={sub:'-',tr:'-'}; }
+        });
+    });
+    renderPeriodConfig();
+    renderCurrentView();
+}
+
+function addPeriodRow(){
+    const id = periodIdCounter++;
+    periodConfig.push({ id, start:'14:45', end:'15:30', isRecess:false });
+    divisions.forEach(div=>{
+        if(!timetableData[div.id]) timetableData[div.id]={};
+        DAYS.forEach(day=>{ timetableData[div.id][`${day}_${id}`]={sub:'-',tr:'-'}; });
+    });
+    renderPeriodConfig();
+    renderCurrentView();
+}
+
+function addRecessRow(){
+    const id = periodIdCounter++;
+    periodConfig.push({ id, start:'12:00', end:'12:30', isRecess:true });
+    renderPeriodConfig();
+    renderCurrentView();
+}
+
+function removePeriodRow(idx){
+    if(periodConfig.length<=2){ alert('ઓછામાં ઓછા ૨ તાસ રાખવા જરૂરી છે.'); return; }
+    const p = periodConfig[idx];
+    if(!confirm(`"${p.isRecess?'વિરામ':'તાસ'}" દૂર કરવો?`)) return;
+    divisions.forEach(div=>{ DAYS.forEach(day=>{ delete timetableData[div.id]?.[`${day}_${p.id}`]; }); });
+    periodConfig.splice(idx,1);
+    renderPeriodConfig();
+    renderCurrentView();
+}
+
+function resetDefaultPeriods(){
+    if(!confirm('ડિફૉલ્ટ તાસ ગોઠવણી પુનઃસ્થાપિત કરવી?')) return;
+    periodConfig = [
+        {id:1,start:'09:00',end:'09:45',isRecess:false},
+        {id:2,start:'09:45',end:'10:30',isRecess:false},
+        {id:3,start:'10:30',end:'11:15',isRecess:false},
+        {id:4,start:'11:15',end:'12:00',isRecess:false},
+        {id:5,start:'12:00',end:'12:30',isRecess:true},
+        {id:6,start:'12:30',end:'13:15',isRecess:false},
+        {id:7,start:'13:15',end:'14:00',isRecess:false},
+        {id:8,start:'14:00',end:'14:45',isRecess:false}
+    ];
+    periodIdCounter = 9;
+    divisions.forEach(div=>{
+        timetableData[div.id]={};
+        DAYS.forEach(day=>{ periodConfig.forEach(p=>{ if(!p.isRecess) timetableData[div.id][`${day}_${p.id}`]={sub:'-',tr:'-'}; }); });
+    });
+    renderPeriodConfig();
+    renderCurrentView();
+}
+
+// ============================================================
+//  AUTO-GENERATE ALGORITHM
+// ============================================================
+function generateAutoTimetable(){
+    const btn = document.getElementById('autoBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ગણતરી થાય છે...';
+    btn.disabled = true;
+
+    setTimeout(()=>{
+        try{
+            const activeSlots = getActiveSlots();
+            if(!activeSlots.length){ alert('કોઈ સક્રિય તાસ નથી.'); btn.innerHTML=orig; btn.disabled=false; return; }
+
+            divisions.forEach(div=>{
+                timetableData[div.id]={};
+                activeSlots.forEach(s=>{ timetableData[div.id][s.key]={sub:'-',tr:'-'}; });
+            });
+
+            const busy = {};
+            teachers.forEach(t=>{ busy[t.name]={}; });
+
+            const needs = {};
+            divisions.forEach(div=>{
+                needs[div.id]={};
+                Object.entries(REQUIRED_PERIODS).forEach(([s,c])=>{ needs[div.id][s]=c; });
+            });
+
+            const firstTwo = getFirstTwoTeachingPeriodIds();
+
+            divisions.forEach(div=>{
+                if(!div.classTeacher) return;
+                const ct = teachers.find(t=>t.name===div.classTeacher);
+                if(!ct || ct.subjects.length===0) return;
+
+                DAYS.forEach(day=>{
+                    firstTwo.forEach(pId=>{
+                        const key = `${day}_${pId}`;
+                        if(!timetableData[div.id][key]) return;
+                        if(busy[ct.name][key]) return;
+                        let sub = null;
+                        for(const s of ct.subjects){
+                            if((needs[div.id][s]||0) > 0){ sub = s; break; }
+                        }
+                        if(!sub) sub = ct.subjects[0];
+                        timetableData[div.id][key] = { sub: sub, tr: ct.name };
+                        busy[ct.name][key] = div.id;
+                        if((needs[div.id][sub]||0) > 0) needs[div.id][sub]--;
+                    });
+                });
+            });
+
+            const shuffledSlots = shuffleArray([...activeSlots]);
+            const shuffledDivs = shuffleArray([...divisions]);
+
+            shuffledSlots.forEach(slot=>{
+                shuffledDivs.forEach(div=>{
+                    if(timetableData[div.id][slot.key].sub !== '-') return;
+                    const neededList = Object.entries(needs[div.id])
+                        .filter(([s,c])=>c>0)
+                        .sort((a,b)=>b[1]-a[1]);
+                    if(neededList.length===0) return;
+
+                    const tries = shuffleArray([...neededList]);
+                    let assigned = false;
+                    for(const [sub] of tries){
+                        const qualified = teachers.filter(t=>t.subjects.includes(sub));
+                        const available = qualified.filter(t=>!busy[t.name][slot.key]);
+                        if(available.length>0){
+                            available.sort((a,b)=>{
+                                const ca = Object.keys(busy[a.name]).length;
+                                const cb = Object.keys(busy[b.name]).length;
+                                return ca - cb;
+                            });
+                            const teacher = available[0];
+                            timetableData[div.id][slot.key] = { sub, tr: teacher.name };
+                            busy[teacher.name][slot.key] = div.id;
+                            needs[div.id][sub]--;
+                            assigned = true;
+                            break;
+                        }
+                    }
+
+                    if(!assigned){
+                        const others = ['પી.ટી./રમતગમત','કલા/ચિત્ર','કાર્યાનુભવ','કમ્પ્યુટર','પુસ્તકાલય'];
+                        for(const sub of others){
+                            const qualified = teachers.filter(t=>t.subjects.includes(sub));
+                            const available = qualified.filter(t=>!busy[t.name][slot.key]);
+                            if(available.length>0){
+                                const teacher = available[0];
+                                timetableData[div.id][slot.key] = { sub, tr: teacher.name };
+                                busy[teacher.name][slot.key] = div.id;
+                                if((needs[div.id][sub]||0)>0) needs[div.id][sub]--;
+                                assigned = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!assigned){
+                        const anyTeacher = teachers.find(t=>!busy[t.name][slot.key]);
+                        if(anyTeacher && div.classTeacher){
+                            const ct = teachers.find(t=>t.name===div.classTeacher);
+                            const chosen = (ct && !busy[ct.name][slot.key]) ? ct : anyTeacher;
+                            timetableData[div.id][slot.key] = { sub:'વર્ગ કાર્ય', tr: chosen.name };
+                            busy[chosen.name][slot.key] = div.id;
+                        } else {
+                            timetableData[div.id][slot.key] = { sub:'—', tr:'—' };
+                        }
+                    }
+                });
+            });
+
+            renderCurrentView();
+
+            btn.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i> સફળતાપૂર્વક તૈયાર!';
+            btn.classList.replace('from-blue-600','from-green-500');
+            btn.classList.replace('to-indigo-600','to-emerald-600');
+            setTimeout(()=>{
+                btn.innerHTML = orig;
+                btn.classList.replace('from-green-500','from-blue-600');
+                btn.classList.replace('to-emerald-600','to-indigo-600');
+                btn.disabled = false;
+            },2500);
+        }catch(e){
+            console.error(e);
+            alert('ભૂલ: '+e.message);
+            btn.innerHTML = orig; btn.disabled = false;
+        }
+    }, 200);
+}
+
+// ============================================================
+//  RENDER DISPATCHER
+// ============================================================
+function renderCurrentView(){
+    const tab = currentActiveTab;
+    if(tab==='validation') renderValidation();
+    else if(tab==='teacherwise') renderTeacherWise();
+    else if(tab==='master') renderMasterTimetable();
+    else renderStandardView(tab);
+}
+
+// ============================================================
+//  STD VIEW
+// ============================================================
+function renderStandardView(std){
+    const container = document.getElementById('timetable_container');
+    const stdDivs = getDivisionsOfStd(std);
+    if(!stdDivs.length){
+        container.innerHTML = `<div class="p-8 text-center text-slate-500"><i class="fa-solid fa-inbox text-4xl mb-3 block"></i> આ ધોરણમાં કોઈ વર્ગ નથી.</div>`;
+        return;
+    }
+
+    let activeDivId = currentDivisionSubTab[std];
+    if(!activeDivId || !stdDivs.find(d=>d.id===activeDivId)) activeDivId = stdDivs[0].id;
+    currentDivisionSubTab[std] = activeDivId;
+
+    let html = `<div class="p-2">`;
+
+    if(stdDivs.length>1){
+        html += `<div class="flex flex-wrap gap-2 mb-3 justify-center no-print">`;
+        stdDivs.forEach(d=>{
+            const cls = d.id===activeDivId ? 'division-tab active' : 'division-tab inactive';
+            html += `<button class="${cls}" onclick="setDivisionSubTab('${std}','${d.id}')">${STD_LABELS[std]} - ${escapeHtml(d.name)}</button>`;
+        });
+        html += `</div>`;
+    }
+
+    stdDivs.forEach(d=>{
+        if(stdDivs.length>1 && d.id!==activeDivId) return;
+        html += renderDivisionTable(d, stdDivs.length>1);
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+function setDivisionSubTab(std,divId){
+    currentDivisionSubTab[std]=divId;
+    renderStandardView(std);
+}
+
+function renderDivisionTable(div, compact){
+    const stdLabel = STD_LABELS[div.std];
+    const ct = div.classTeacher || '—';
+    const periodNumbers = computePeriodNumbers();
+    const firstTwoIds = getFirstTwoTeachingPeriodIds();
+    const lastTwoIds = getLastTwoTeachingPeriodIds();
+
+    let html = `
+        <div class="${compact?'':'mb-6'} bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="bg-green-100 px-4 py-2 font-extrabold text-green-900 flex flex-wrap items-center justify-between gap-2">
+                <span><i class="fa-solid fa-users-rectangle mr-2"></i>${stdLabel} - વર્ગ ${escapeHtml(div.name)}</span>
+                <span class="text-xs font-bold text-green-700 bg-white px-3 py-1 rounded-full border border-green-300">
+                    <i class="fa-solid fa-user-tie mr-1"></i> વર્ગશિક્ષક: ${escapeHtml(ct)}
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-center border-collapse">
+                    <thead>
+                        <tr class="bg-green-50 text-green-900 border-b-2 border-green-300">
+                            <th class="p-2 border table-cell-print w-24">તાસ / વાર</th>`;
+
+    DAYS.forEach(day => {
+        html += `<th class="p-1.5 border table-cell-print font-bold text-xs whitespace-nowrap">${day}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+
+    periodConfig.forEach(p => {
+        if (p.isRecess) {
+            html += `<tr class="recess-row">
+                        <td class="p-1.5 border table-cell-print bg-yellow-100 text-yellow-800 text-xs font-bold text-center">
+                            વિરામ<br><span class="text-[9px] font-normal">${p.start}-${p.end}</span>
+                        </td>`;
+            DAYS.forEach(day => {
+                html += `<td class="p-1 border table-cell-print bg-yellow-50/50 text-yellow-600 text-xs">☕</td>`;
+            });
+            html += `</tr>`;
+            return;
+        }
+
+        const isFirstTwo = firstTwoIds.includes(p.id);
+        html += `<tr class="border-b hover:bg-slate-50 transition">
+                    <td class="p-1.5 font-extrabold bg-green-50/50 border table-cell-print text-green-900 text-xs whitespace-nowrap ${isFirstTwo?'ring-1 ring-blue-200':''}">
+                        તાસ ${periodNumbers[p.id]}<br>
+                        <span class="text-[9px] font-normal text-slate-600">${p.start}-${p.end}</span>
+                    </td>`;
+        DAYS.forEach(day => {
+            const key = `${day}_${p.id}`;
+            const cell = (timetableData[div.id] && timetableData[div.id][key]) || {sub:'-',tr:'-'};
+            const isSatLate = day==='શનિવાર' && lastTwoIds.includes(p.id);
+            const bg = isSatLate ? 'bg-slate-100 opacity-60' : (cell.sub!=='-'&&cell.sub!=='—' ? 'bg-white' : 'bg-red-50');
+            const isCT = cell.tr === div.classTeacher && div.classTeacher && cell.tr!=='—';
+            html += `<td class="p-1 border table-cell-print ${bg} ${isCT?'ring-1 ring-blue-300':''}">
+                        <div class="font-extrabold text-[11px] text-slate-800 leading-tight">${escapeHtml(cell.sub)}</div>
+                        <div class="text-[10px] text-slate-500 font-semibold leading-tight">${escapeHtml(cell.tr)}</div>
+                        ${isSatLate?'<div class="text-[8px] text-slate-400">(રદ)</div>':''}
+                    </td>`;
+        });
+        html += `</tr>`;
+    });
+
+    html += `</tbody></table></div>
+        <div class="px-3 py-2 text-[10px] text-slate-500 flex flex-wrap gap-3 border-t bg-slate-50">
+            <span><span class="font-bold text-blue-600">■</span> વર્ગશિક્ષકના પ્રથમ ૨ તાસ</span>
+            <span><span class="font-bold text-red-400">■</span> ખાલી</span>
+            <span>📌 કુલ તાસ: ${getActiveSlots().length}</span>
+        </div>
+    </div>`;
+    return html;
+}
+
+// ============================================================
+//  TEACHER-WISE VIEW
+// ============================================================
+function renderTeacherWise(){
+    const container = document.getElementById('timetable_container');
+    const activeTeachers = teachers.filter(t=>t.subjects.length>0);
+    if(!activeTeachers.length){
+        container.innerHTML = `<div class="p-8 text-center text-slate-500"><i class="fa-solid fa-user-slash text-4xl mb-3 block"></i> કોઈ શિક્ષકને વિષયો સોંપાયા નથી.</div>`;
+        return;
+    }
+    const periodNumbers = computePeriodNumbers();
+    const lastTwoIds = getLastTwoTeachingPeriodIds();
+
+    let html = `<div class="p-3">
+        <h3 class="text-xl font-bold text-center text-slate-800 mb-1"><i class="fa-solid fa-chalkboard-user text-purple-600 mr-2"></i> શિક્ષકવાર સમયપત્રક</h3>
+        <p class="text-center text-sm text-slate-500 mb-4">દરેક શિક્ષકની રોજનીશી માટે — વર્ગ સાથે</p>`;
+
+    activeTeachers.forEach(teacher=>{
+        let totalAssigned = 0;
+        Object.keys(timetableData).forEach(dId=>{
+            Object.values(timetableData[dId]).forEach(c=>{ if(c.tr===teacher.name) totalAssigned++; });
+        });
+        html += `
+            <div class="mb-5 border border-purple-200 rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-purple-100 px-4 py-2 font-extrabold text-purple-900 flex flex-wrap items-center justify-between gap-2">
+                    <span><i class="fa-solid fa-user-graduate mr-2"></i> ${escapeHtml(teacher.name)}</span>
+                    <span class="text-xs bg-white px-3 py-1 rounded-full border border-purple-300 text-purple-700">કુલ ${totalAssigned} તાસ</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-center border-collapse teacher-timetable">
+                        <thead>
+                            <tr class="bg-slate-100">
+                                <th class="p-1 border w-20">તાસ / વાર</th>`;
+        DAYS.forEach(day => {
+            html += `<th class="p-1 border text-xs">${day}</th>`;
+        });
+        html += `</tr></thead><tbody>`;
+
+        periodConfig.forEach(p => {
+            if (p.isRecess) {
+                html += `<tr class="recess-row">
+                            <td class="p-1 border bg-yellow-50 text-yellow-700 text-[10px] font-bold">વિરામ</td>`;
+                DAYS.forEach(day => {
+                    html += `<td class="p-1 border bg-yellow-50 text-yellow-600 text-[10px]">☕</td>`;
+                });
+                html += `</tr>`;
+                return;
+            }
+            html += `<tr class="border-b">
+                        <td class="p-1 border font-bold bg-slate-50 text-xs">
+                            તાસ ${periodNumbers[p.id]}<br><span class="text-[9px] font-normal">${p.start}</span>
+                        </td>`;
+            DAYS.forEach(day => {
+                const key = `${day}_${p.id}`;
+                let entries = [];
+                divisions.forEach(div=>{
+                    const cell = timetableData[div.id] && timetableData[div.id][key];
+                    if(cell && cell.tr===teacher.name && cell.sub!=='-' && cell.sub!=='—'){
+                        entries.push(`${cell.sub} (${STD_LABELS[div.std]}-${div.name})`);
+                    }
+                });
+                const isSatLate = day==='શનિવાર' && lastTwoIds.includes(p.id);
+                const bg = isSatLate ? 'bg-slate-100 opacity-50' : (entries.length?'bg-green-50':'bg-white');
+                html += `<td class="p-1 border ${bg} text-[10px] leading-tight">${entries.length?entries.join('<br>'):'—'}${isSatLate?'<div class="text-[8px] text-slate-400">રદ</div>':''}</td>`;
+            });
+            html += `</tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// ============================================================
+//  MASTER TIMETABLE
+// ============================================================
+function renderMasterTimetable(){
+    const container = document.getElementById('timetable_container');
+    const activeSlots = getActiveSlots();
+    if(!divisions.length){
+        container.innerHTML = `<div class="p-8 text-center text-slate-500">કોઈ વર્ગ નથી.</div>`;
+        return;
+    }
+    const periodNumbers = computePeriodNumbers();
+    const lastTwoIds = getLastTwoTeachingPeriodIds();
+    const divCount = divisions.length;
+
+    let html = `<div class="p-2">
+        <h3 class="text-xl font-bold text-center text-slate-800 mb-1"><i class="fa-solid fa-table-columns text-orange-600 mr-2"></i> મુખ્ય સમયપત્રક — આચાર્યશ્રી</h3>
+        <p class="text-center text-sm text-slate-500 mb-3">બધા વર્ગોનું એકસાથે દૃશ્ય</p>
+        <div class="overflow-x-auto">
+        <table class="w-full border-collapse master-grid" style="min-width:${160+DAYS.length*divCount*65}px">
+            <thead>
+                <tr class="bg-orange-100">
+                    <th class="p-1 border day-col" rowspan="2">તાસ / વાર</th>`;
+
+    DAYS.forEach(day => {
+        html += `<th class="p-1 border std-header" colspan="${divCount}">${day}</th>`;
+    });
+    html += `</tr><tr class="bg-green-50">`;
+    DAYS.forEach(day => {
+        divisions.forEach(div => {
+            const shortStd = STD_LABELS[div.std].replace('ધોરણ ','');
+            html += `<th class="p-1 border text-[10px]">${shortStd}-${escapeHtml(div.name)}<br><span class="font-normal text-[9px]">${escapeHtml(div.classTeacher||'—')}</span></th>`;
+        });
+    });
+    html += `</tr></thead><tbody>`;
+
+    periodConfig.forEach(p => {
+        if (p.isRecess) {
+            html += `<tr class="recess-row">
+                        <td class="p-1 border time-col text-[10px]">
+                            વિરામ<br><span class="text-[9px] font-normal">${p.start}-${p.end}</span>
+                        </td>`;
+            DAYS.forEach(day => {
+                divisions.forEach(div => {
+                    html += `<td class="p-1 border bg-yellow-50 text-center text-yellow-600 text-[10px]">☕</td>`;
+                });
+            });
+            html += `</tr>`;
+            return;
+        }
+
+        html += `<tr>
+                    <td class="p-1 border time-col">
+                        તાસ ${periodNumbers[p.id]}<br><span class="text-[9px] font-normal">${p.start}-${p.end}</span>
+                    </td>`;
+        DAYS.forEach(day => {
+            const isSatLate = day==='શનિવાર' && lastTwoIds.includes(p.id);
+            divisions.forEach(div => {
+                if (isSatLate) {
+                    html += `<td class="p-1 border bg-slate-100 opacity-50 text-[10px] text-center text-slate-400">—</td>`;
+                    return;
+                }
+                const key = `${day}_${p.id}`;
+                const cell = (timetableData[div.id] && timetableData[div.id][key]) || {sub:'-',tr:'-'};
+                const bg = cell.sub!=='-'&&cell.sub!=='—' ? 'bg-white' : 'bg-red-50';
+                html += `<td class="p-1 border ${bg} text-[10px] leading-tight text-center">
+                            <div class="font-bold">${escapeHtml(cell.sub)}</div>
+                            <div class="text-[9px] text-slate-500">${escapeHtml(cell.tr)}</div>
+                        </td>`;
+            });
+        });
+        html += `</tr>`;
+    });
+
+    html += `</tbody></table></div>
+        <div class="mt-2 text-[10px] text-slate-500 text-center">
+            📌 શનિવારે છેલ્લા ૨ તાસ રદ | કુલ વર્ગ: ${divisions.length} | કુલ તાસ/વર્ગ: ${activeSlots.length}
+        </div>
+    </div>`;
+    container.innerHTML = html;
+}
+
+// ============================================================
+//  VALIDATION
+// ============================================================
+function renderValidation(){
+    const container = document.getElementById('timetable_container');
+    const teacherNames = getTeacherNames();
+    const teacherStats = {};
+    teacherNames.forEach(t=>{ teacherStats[t]=0; });
+
+    const divStats = {};
+    divisions.forEach(d=>{
+        divStats[d.id]={};
+        Object.keys(REQUIRED_PERIODS).forEach(s=>{ divStats[d.id][s]=0; });
+        divStats[d.id]['વર્ગ કાર્ય']=0;
+    });
+
+    divisions.forEach(div=>{
+        Object.values(timetableData[div.id]||{}).forEach(cell=>{
+            if(!cell) return;
+            if(cell.sub && cell.sub!=='-' && cell.sub!=='—'){
+                if(divStats[div.id][cell.sub]!==undefined) divStats[div.id][cell.sub]++;
+                else divStats[div.id][cell.sub]=(divStats[div.id][cell.sub]||0)+1;
+            }
+            if(cell.tr && cell.tr!=='-' && cell.tr!=='—' && teacherStats[cell.tr]!==undefined){
+                teacherStats[cell.tr]++;
+            }
+        });
+    });
+
+    let html = `<div class="p-4 bg-white space-y-6">
+        <h3 class="text-xl font-bold text-slate-800 border-b-2 border-slate-200 pb-2 mb-4">
+            <i class="fa-solid fa-shield-halved text-emerald-600 mr-2"></i> તાસ ચકાસણી રિપોર્ટ
+        </h3>
+
+        <div>
+            <h4 class="font-bold text-md text-slate-700 mb-3"><i class="fa-solid fa-person-chalkboard text-blue-600 mr-2"></i> શિક્ષક કાર્યભાર (કુલ તાસ)</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">`;
+
+    teachers.forEach(t=>{
+        const count = teacherStats[t.name]||0;
+        const color = count>0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-slate-100 border-slate-200 text-slate-400';
+        html += `
+            <div class="${color} border-2 rounded-xl p-3 text-center validation-card shadow-sm">
+                <p class="font-bold text-xs mb-1 h-10 overflow-hidden leading-tight" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</p>
+                <p class="text-3xl font-black">${count}</p>
+                <p class="text-[10px] mt-1 opacity-70 font-bold border-t border-current pt-1">વિષયો: ${t.subjects.length}</p>
+            </div>`;
+    });
+
+    html += `</div></div>`;
+
+    html += `<div class="page-break">
+        <h4 class="font-bold text-md text-slate-700 mb-3 border-t pt-4"><i class="fa-solid fa-book-open text-emerald-600 mr-2"></i> વર્ગવાર વિષય ફાળવણી ચકાસણી</h4>
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">`;
+
+    divisions.forEach(div=>{
+        const stdLabel = STD_LABELS[div.std];
+        const ct = div.classTeacher||'—';
+        const total = Object.values(divStats[div.id]).reduce((a,b)=>a+b,0);
+        const target = getActiveSlots().length;
+        html += `
+            <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-slate-100 px-3 py-2 border-b flex flex-wrap items-center justify-between gap-1">
+                    <span class="font-bold text-sm text-slate-800">${stdLabel} - વર્ગ ${escapeHtml(div.name)}</span>
+                    <span class="ct-badge"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHtml(ct)}</span>
+                </div>
+                <table class="w-full text-sm">
+                    <tbody>`;
+        Object.entries(REQUIRED_PERIODS).forEach(([sub,req])=>{
+            const actual = divStats[div.id][sub]||0;
+            const ok = actual===req;
+            const rowBg = ok ? '' : 'bg-red-50';
+            const icon = actual===req?'✅':(actual<req?'⚠️':'🔺');
+            html += `<tr class="border-b border-slate-100 ${rowBg}">
+                        <td class="py-1.5 px-3 font-semibold text-slate-700 text-xs">${sub}</td>
+                        <td class="py-1.5 px-3 text-center font-mono font-bold text-xs">${actual} / ${req}</td>
+                        <td class="py-1.5 px-3 text-right text-xs">${icon}</td>
+                    </tr>`;
+        });
+        const extraSubs = Object.keys(divStats[div.id]).filter(s=>!REQUIRED_PERIODS[s] && divStats[div.id][s]>0);
+        extraSubs.forEach(s=>{
+            html += `<tr class="border-b border-slate-100 bg-amber-50">
+                        <td class="py-1.5 px-3 font-semibold text-amber-800 text-xs">${s}</td>
+                        <td class="py-1.5 px-3 text-center font-mono font-bold text-xs">${divStats[div.id][s]}</td>
+                        <td class="py-1.5 px-3 text-right text-xs">ℹ️</td>
+                    </tr>`;
+        });
+        html += `<tr class="bg-blue-50 border-t-2 border-blue-200 font-bold">
+                    <td class="py-2 px-3 text-blue-800 text-xs">કુલ</td>
+                    <td class="py-2 px-3 text-center text-blue-800 text-xs">${total} / ${target}</td>
+                    <td class="py-2 px-3 text-right text-xs">${total===target?'✅':'⚠️'}</td>
+                </tr>`;
+        html += `</tbody></table></div>`;
+    });
+
+    html += `</div></div>
+        <div class="text-xs text-slate-500 border-t pt-3 mt-4 flex flex-wrap gap-4 justify-center">
+            <span>✅ = સાચું</span><span>⚠️ = ઓછું</span><span>🔺 = વધારે</span>
+            <span>ℹ️ = વધારાનું (વર્ગ કાર્ય વગેરે)</span>
+            <span>📌 કુલ તાસ/વર્ગ: ${getActiveSlots().length}</span>
+        </div>
+    </div>`;
+    container.innerHTML = html;
+}
+
+// ============================================================
+//  TAB SWITCHING
+// ============================================================
+function switchTab(tabId){
+    currentActiveTab = tabId;
+    document.querySelectorAll('#tabs button').forEach(btn=>{
+        btn.classList.remove('tab-active');
+        btn.classList.add('tab-inactive');
+    });
+    const activeBtn = document.getElementById(`tab_${tabId}`);
+    if(activeBtn){ activeBtn.classList.remove('tab-inactive'); activeBtn.classList.add('tab-active'); }
+
+    const titleMap = {
+        'std6':'ધોરણ ૬ - સમયપત્રક','std7':'ધોરણ ૭ - સમયપત્રક','std8':'ધોરણ ૮ - સમયપત્રક',
+        'teacherwise':'શિક્ષકવાર સમયપત્રક','master':'મુખ્ય સમયપત્રક — આચાર્યશ્રી','validation':'તાસ ચકાસણી રિપોર્ટ'
+    };
+    document.getElementById('print_title').innerText = titleMap[tabId]||'શાળા સમયપત્રક';
+    renderCurrentView();
+}
+
+// ============================================================
+//  EXPORT TO CSV — UPDATED WITH BRANDING
+// ============================================================
+function exportToCSV(){
+    const tab = currentActiveTab;
+    if(tab==='validation'){ alert('કૃપા કરીને ધોરણ, શિક્ષકવાર કે મુખ્ય સમયપત્રક ટેબ ખોલીને Excel ડાઉનલોડ કરો.'); return; }
+    const table = document.querySelector("#timetable_container table");
+    if(!table){ alert('પહેલા સમયપત્રક જનરેટ કરો.'); return; }
+
+    const BOM = "\uFEFF";
+    let rows = [];
+    const schoolName = document.getElementById('schoolName').value||'શાળા';
+    rows.push(`"${schoolName} - ${document.getElementById('print_title').innerText}"`);
+    rows.push(`"╔══════════════════════════════════════════════════════════════╗"`);
+    rows.push(`"║  Designed & Developed by: SAKILAHEMAD SHAIKH                 ║"`);
+    rows.push(`"║  સંપર્ક: 9722222606                                          ║"`);
+    rows.push(`"║  વોટ્સએપ ચેનલ: whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47 ║"`);
+    rows.push(`"╚══════════════════════════════════════════════════════════════╝"`);
+    rows.push(`"જનરેટ: ${new Date().toLocaleDateString('gu-IN')}"`);
+    rows.push("");
+
+    const trs = table.querySelectorAll("tr");
+    trs.forEach(tr=>{
+        const cells = tr.querySelectorAll("td, th");
+        const rowData = [];
+        cells.forEach(cell=>{
+            let text = cell.innerText.replace(/"/g,'""').replace(/\n/g," ").replace(/\s+/g," ").trim();
+            rowData.push(`"${text}"`);
+        });
+        rows.push(rowData.join(","));
+    });
+
+    // Footer branding row
+    rows.push("");
+    rows.push(`"━━━ ડેવલપર: SAKILAHEMAD SHAIKH | 9722222606 | વોટ્સએપ ચેનલમાં જોડાઓ: https://whatsapp.com/channel/0029Va8stPs1XqubCFWCMx47 ━━━"`);
+
+    const csv = BOM + rows.join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const link = document.createElement("a");
+    link.download = `Timetable_${tab}_${new Date().toISOString().slice(0,10)}.csv`;
+    link.href = URL.createObjectURL(blob);
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+window.onload = function(){
+    if(teachers.length>=3){
+        divisions[0].classTeacher = teachers[0].name;
+        divisions[1].classTeacher = teachers[1].name;
+        divisions[2].classTeacher = teachers[2].name;
+    }
+    renderTeacherList();
+    renderPeriodConfig();
+    renderDivisionManagement();
+
+    divisions.forEach(div=>{
+        timetableData[div.id]={};
+        getActiveSlots().forEach(s=>{ timetableData[div.id][s.key]={sub:'-',tr:'-'}; });
+    });
+
+    generateAutoTimetable();
+    switchTab('std6');
+};
+</script>
+
+</body>
+</html>
